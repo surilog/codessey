@@ -910,7 +910,7 @@ branch 'main' set up to track 'origin/main'.
 ```
 처음에 git push -u origin main을 하엿지만 다음과 같은 오류가 발생했습니다.
 이 오류는 찾아보니 Github 페이지에는 있는 파일들이 local에 없어서 생기는 오류여서 github에 있는 파일을 제 local로 가져와 합친 후 다시 올려 해결했습니다.
-
+```powershell
  git push -u origin main
 To https://github.com/surilog/codessey.git
  ! [rejected]        main -> main (fetch first)
@@ -920,7 +920,7 @@ hint: have locally. This is usually caused by another repository pushing to
 hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-
+```
 
 ### Github와 vscode 연동 확인
 
