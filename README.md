@@ -1,15 +1,13 @@
-# codessey
-코디세이 과제를 위한 레포입니다.
 ## 1.프로젝트 개요(미션 목표 요약)
 
-내 컴퓨터에 개발자용 '작업실' 꾸미기.
+내 컴퓨터에 개발자용 '작업실' 환경을 구축하고 기본 리눅스 CLI 조작 및 Docker, Git/GitHub 환경을 실습합니다.
 
 ## 2. 실행환경(OS/쉘/터미널, Docker 버전, Git버전)
-OS: ubuntu 24.04
+OS: ubuntu 24.04 LTS / Windows 11 (Docker Desktop) / macOS (Apple Silicon / Intel)
 
-Shell : bash
+Shell : Zsh / Bash / PowerShell
 
-Docker :  29.6.2
+Docker :  OrbStack (Docker Engine v29.6.2 호환), 29.6.2
 
 Git : 2.45.2
 
@@ -21,10 +19,10 @@ Git : 2.45.2
 - [O] 권한 변경 실습
 - [O] Docker 설치/점검
 - [O] hello-world 실행
-- [x] Dockerfile 빌드/실행
-- [x] 포트 매핑 접속(2회)
-- [x] 바인드 마운트 반영
-- [x] 볼륨 영속성
+- [O] Dockerfile 빌드/실행
+- [O] 포트 매핑 접속(2회)
+- [O] 바인드 마운트 반영
+- [O] 볼륨 영속성
 - [O] Git 설정 + VSCode GitHub 연동
 
 ---
@@ -116,6 +114,14 @@ $ rm -rf test1 ; ls
 snap  공개  다운로드  문서  바탕화면  비디오  사진  서식  음악
 
 ```
+
+[+]절대경로와 상대경로 알고가기
+
+절대경로: 어디서 실행하든 항상 고정된 하나의 정확한 위치를 가리킵니다.
+상대경로: 현재 위치를 기준으로 합니다!
+
+절대경로가 더 정확히 경로를 지정할 수 있지만 저는 사용하면서 간결하고 유연하게 사용했던 **상대경로**를 많이 사용했었던 것 같습니다.
+
 
 ## 5. 권한 실습 및 증거 기록
 
@@ -575,6 +581,15 @@ student@93ab17eef57f:~$ curl http://localhost:8080
 
 ## 10. 포트 매핑 및 접속 증거
 
+
+**포트 매핑 필요 이유:**
+-외부(호스트/인터넷)에서 격리된 컨테이너 내부의 서비스에 접속할 수 있도록 "외부 포트"와 "내부 포트" 사이에 통로를 뚫어주는 작업!<br>
+컨테이너는 기본적으로 독립된 공간!
+
+-호스트와의 포트 충돌 방지및 다중 실행 가능<br>
+즉, 하나의 이미지로 여러 개의 독립된 컨테이너를 동시에 구동 가능!
+
+
 | 항목 | 내용 |
 | :--- | :--- |
 | **베이스 이미지** | `nginx:latest` |
@@ -700,6 +715,298 @@ CONTAINER ID   IMAGE                 COMMAND                   CREATED         S
 ```
 <img width="681" height="335" alt="Image" src="https://github.com/user-attachments/assets/2c4ce208-8d15-48a8-b5b5-612879a88a97" />
 
+**포트매핑 증거**
 
+```Powershell
+C:\Users\my_web_server> docker ps
+CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
+995056059ad0   my_port_server:v1   "/docker-entrypoint.…"   3 minutes ago    Up 3 minutes    0.0.0.0:8084->80/tcp, [::]:8084->80/tcp   my-port-server-container2
+6c8f7bc5490d   my_port_server:v1   "/docker-entrypoint.…"   5 minutes ago    Up 5 minutes    0.0.0.0:8083->80/tcp, [::]:8083->80/tcp   my-port-server-container
+```
+<img width="913" height="227" alt="Image" src="https://github.com/user-attachments/assets/500003f1-9ccd-46e2-937b-bbe4c78979bd" />
+
+## 바인드 마운트 반영 + 볼륨 영속성 증거
+
+
+### 1. 개요 및 볼륨 개념
+**볼륨(Volume) 사용 이유:** 컨테이너의 파일 시스템은 기본적으로 휘발성이므로, 컨테이너가 삭제되면 내부 데이터도 함께 소멸되기 때문! 
+이를 방지하고 **데이터를 컨테이너 생명주기와 독립적으로 분리하여 영구 보존(영속성 확보)**!
+
+#### 도커 볼륨의 3가지 방식
+| 방식 | 설명 | 특징 | 예시 |
+| :--- | :--- | :--- | :--- |
+| **Volume** | Docker가 내부에서 직접 관리 | 영속성 뛰어남, 백업 편리 | 운영 환경의 DB, 앱 데이터 |
+| **Bind Mount** | 호스트의 특정 경로를 컨테이너에 직접 등록 | 실시간 반영 가능, 유연성 높음 | 개발 중 코드 공유, 로그 확인 |
+| **tmpfs Mount** | 휘발성 메모리(RAM) 공간에 저장 | 고속 처리, 재부팅 시 삭제, Linux 기반 전용 | 캐시, 인증 정보, 민감한 임시 데이터 |
+
+---
+
+### 2. Docker 볼륨 영속성 검증 보고서
+
+#### [실습 개요]
+컨테이너 생성 후 볼륨 영역에 데이터를 기록하고, 해당 컨테이너를 완전 삭제한 뒤 새 컨테이너에서 동일 볼륨을 연결하여 데이터 유지 여부를 검증합니다.
+
+#### [검증 절차 및 명령]
+
+**1. 볼륨 생성후 확인**
+
+```shell
+docker volume create my_persistence_vol
+
+docker volume ls
+DRIVER    VOLUME NAME
+local     my_persistence-vol
+local     my_persistence_vol
+local     my_web_data
+local     mydata
+```
+<img width="280" height="87" alt="Image" src="https://github.com/user-attachments/assets/d9040867-1eb7-44ff-8ff3-c34748fa909c" />
+
+**2. 컨테이너 생성 및 데이터 저장**
+생성한 볼륨을 container_1의 /data 경로에 마운트하여 실행하고, 내부에 테스트 파일(test.txt)을 생성했습니다.
+
+```shell
+> docker run -it --name container_1 -v my_persistence_vol:/data ubuntu bash
+Status: Downloaded newer image for ubuntu:latest
+root@e:/# echo "Hello, Docker Volume! This data is persistent." > /data/test.txt
+root@e:/# cat /data/test.txt
+Hello, Docker Volume! This data is persistent.
+```
+
+<img width="671" height="174" alt="Image" src="https://github.com/user-attachments/assets/36dea1f1-7a50-4f41-93da-412c0c28d19b" />
+
+**3. 컨테이너 삭제 및 새 컨테이너에서 데이터 확인**
+
+```shell
+>  docker rm container_1   
+container_1
+
+> docker ps -a
+CONTAINER ID   IMAGE                 COMMAND                   CREATED       STATUS                           PORTS                  NAMES
+016057182e6e   ubuntu_nginx_web:v3   "nginx -g 'daemon of…"   4 hours ago   Exited (255) About an hour ago   0.0.0.0:8081->80/tcp   ubuntu_nginx_container
+9dee0a323350   my_web_server:v1      "/docker-entrypoint.…"   5 hours ago   Exited (0) 4 hours ago
+
+> docker run -it --name container_2 -v my_persistence_vol:/data ubuntu bash
+
+root@93cf4a0ba852:/# cat /data/test.txt
+Hello, Docker Volume! This data is persistent
+```
+
+<img width="293" height="31" alt="Image" src="https://github.com/user-attachments/assets/7c1b84bc-b3e2-4a51-8a7e-f34a9c0c707d" />
+
+
+<img width="676" height="108" alt="Image" src="https://github.com/user-attachments/assets/ae035a3f-31de-4d6a-adae-a43fc0df4379" />
+
+
+### 바인드 마운트 반영
+
+#### 1. 개요 및 개념
+**바인드 마운트란?** 호스트 시스템의 특정 파일이나 디렉토리를 컨테이너 내부 경로로 직접 공유하는 방식입니다.
+**주요 특징:** 
+   호스트에서 소스 코드를 수정하면 컨테이너 내부에도 **실시간으로 즉시 반영**됩니다.
+   개발 환경에서 빌드 과정 없이 코드 변경 사항을 테스트할 때 매우 유용합니다.
+
+#### 2. 바인드 마운트 실습 절차
+
+##### 호스트 디렉토리 및 테스트 파일 생성
+호스트에 컨테이너와 연결할 폴더와 HTML 파일 만들기.
+
+**PowerShell / Bash 명령어:**
+내 컴퓨터의 C:\Users\yangh\code\my_web_server\src 폴더를 컨테이너에 연결
+
+  ```powershell
+docker run -d `
+  --name bind-mount-container `
+  -p 8082:80 `
+  -v "C:\Users\yangh\code\my_web_server\src:/usr/share/nginx/html" `
+  nginx  
+```
+바인드 마운트 확인 페이지!
+<img width="337" height="150" alt="Image" src="https://github.com/user-attachments/assets/cc2eb858-3246-4fae-b0db-f74af4310398" />
+
+바인드 마운트 증거
+<img width="489" height="108" alt="Image" src="https://github.com/user-attachments/assets/49384033-a474-41bf-86a7-3e0a8e833df1" />
+
+바인드 마운트 성공!
+<img width="369" height="180" alt="Image" src="https://github.com/user-attachments/assets/d251cc7a-2a90-49e0-a034-929f5fc1c279" />
+
+
+## 11. Git 설정 및 GitHub/VSCode 연동 증거
+
+### Git 사용자 정보 및 기본 브랜치 설정결과
+```
+PS C:\Users\yangh> git config --list
+diff.astextplain.textconv=astextplain
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+filter.lfs.required=true
+http.sslbackend=openssl
+http.sslcainfo=C:/Program Files/Git/mingw64/etc/ssl/certs/ca-bundle.crt
+core.autocrlf=true
+core.fscache=true
+core.symlinks=false
+pull.rebase=false
+credential.helper=manager
+credential.https://dev.azure.com.usehttppath=true
+init.defaultbranch=master
+user.name=yanghwan
+user.email=jamgyang@gmail.com
+core.autocrlf=true
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+filter.lfs.required=true
+init.defaultbranch=main
+```
+"터미널에서 git config --list를 실행하여 사용자 이름, 이메일 및 기본 브랜치가 main으로 설정된 것을 확인하였습니다."
+
+
+### Github Repository 생성 및 연동
+
+```shell
+PS C:\Users\yangh> cd code
+PS C:\Users\yangh\code> git init
+Initialized empty Git repository in C:/Users/yangh/code/.git/
+
+PS C:\Users\yangh\code> git remote add origin https://github.com/surilog/codessey.git
+PS C:\Users\yangh\code> git remote -v
+origin  https://github.com/surilog/codessey.git (fetch)
+origin  https://github.com/surilog/codessey.git (push)
+
+PS C:\Users\yangh\code> git add .
+PS C:\Users\yangh\code> git commit -m "Initial commit: Docker volume practice"
+[main (root-commit) 709e652] Initial commit: Docker volume practice
+ 4 files changed, 67 insertions(+)
+ create mode 100644 linux_base/Dockerfile
+ create mode 100644 my_web_server/Dockerfile
+ create mode 100644 my_web_server/Dockerfile.ubuntu
+ create mode 100644 my_web_server/src/index.html
+
+git pull origin main --allow-unrelated-histories
+remote: Enumerating objects: 18, done.
+remote: Counting objects: 100% (18/18), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 18 (delta 4), reused 0 (delta 0), pack-reused 0 (from 0)
+Unpacking objects: 100% (18/18), 14.27 KiB | 121.00 KiB/s, done.
+From https://github.com/surilog/codessey
+ * branch            main       -> FETCH_HEAD
+ * [new branch]      main       -> origin/main
+Merge made by the 'ort' strategy.
+ README.md | 705 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 705 insertions(+)
+ create mode 100644 README.md
+PS C:\Users\yangh\code> # 2. 다시 푸시
+PS C:\Users\yangh\code> git push -u origin main
+Enumerating objects: 12, done.
+Counting objects: 100% (12/12), done.
+Delta compression using up to 18 threads
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (11/11), 2.33 KiB | 238.00 KiB/s, done.
+Total 11 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/surilog/codessey.git
+   42abdcb..ef5f03f  main -> main
+branch 'main' set up to track 'origin/main'.
+```
+처음에 git push -u origin main을 하엿지만 다음과 같은 오류가 발생했습니다.
+이 오류는 찾아보니 Github 페이지에는 있는 파일들이 local에 없어서 생기는 오류여서 github에 있는 파일을 제 local로 가져와 합친 후 다시 올려 해결했습니다.
+
+ git push -u origin main
+To https://github.com/surilog/codessey.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/surilog/codessey.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+
+### Github와 vscode 연동 확인
+
+<img width="880" height="436" alt="Image" src="https://github.com/user-attachments/assets/86e6cbed-1df7-4011-93bd-81f49cb8a43c" />
+
+
+## 트러블 슈팅
+
+### 1. 포트 충돌 오류
+
+#### 문제상황
+새로운 컨테이너를 실행하기 위해 `docker run -d -p 8080:80 ...` 명령어를 입력하였으나, 컨테이너가 생성되지 않고 아래와 같은 포트 바인딩 에러 메시지가 발생함.
+
+```powershell
+PS C:\Users\yangh\code\my_web_server> docker run -d -p 8080:80 --name my-port-server-container4 my_port_server:v1
+fca635b801235e2d5eec5f4259dae61514e964acf26249c26d9d5a3a8ec0576c
+
+What's next:
+    Debug this container error with Gordon → docker ai "help me fix this container error"
+docker: Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint my-port-server-container4 (9791005a1437c185f56a61d68e7db411b843035d51744a2273d62b1bd5d2ce1c): Bind for 0.0.0.0:8080 failed: port is already allocated
+```
+#### 2. 원인 분석 (Cause)
+호스트 시스템의 8080번 포트를 이미 다른 프로세스나 이전에 실행한 다른 Docker 컨테이너가 점유하고 있어서 발생하는 포트 충돌 현상이었습니다.
+
+#### 3.해결절차
+
+**방법1. 기존에 8080 포트를 점유 중인 컨테이너 확인 및 중지/삭제**
+
+```powershell
+PS C:\Users\yangh\code\my_web_server> docker ps
+CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
+7552f0f1f3b6   my_port_server:v1   "/docker-entrypoint.…"   2 minutes ago    Up 2 minutes    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-port-server-container3
+
+PS C:\Users\yangh\code\my_web_server> docker rm -f my-port-server-container3
+my-port-server-container3
+
+```
+
+**방법2. 호스트의 미사용 포트로 변경하여 실행**
+
+```powershell
+PS C:\Users\yangh\code\my_web_server> docker run -d -p 8081:80 --name my-port-server-container5 my_port_server:v1
+804cd078856b13611065fdc22782277df9064fb10209dc3e12c469eacf2a5483
+
+PS C:\Users\yangh\code\my_web_server> docker ps
+CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
+804cd078856b   my_port_server:v1   "/docker-entrypoint.…"   3 seconds ago    Up 2 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   my-port-server-container5
+
+```
+### 2. NGINX 컨테이너 즉시 종료 현상 해결
+
+#### 1. 문제 상황
+
+상황: Ubuntu 베이스 이미지에 NGINX를 설치하고 docker run으로 컨테이너를 실행했으나, 컨테이너가 실행 직후 바로 종료됨 (Exited (0) 상태).
+로그 확인: docker ps -a 명령어로 확인 시 컨테이너가 Up 상태가 아닌 종료된 상태로 표시됨.
+
+#### 2. 원인 분석
+
+Docker의 특징: Docker 컨테이너는 내부에 실행 중인 **메인 프로세스**가 종료되면 컨테이너 자체도 종료됨.
+NGINX의 동작 방식: NGINX는 기본적으로 '데몬(Daemon)' 모드로 설계되어 실행 시 백그라운드로 숨어버림.
+결과: Docker 입장에서는 "어? 실행시킨 프로그램이 끝났네?"라고 판단하여 컨테이너를 자동으로 종료!
+
+#### 3. 해결 방법
+
+Dockerfile 수정: NGINX가 백그라운드로 넘어가지 않고 **포그라운드**에서 계속 실행되도록 설정을 수정했습니다.
+명령어: CMD ["nginx", "-g", "daemon off;"]
+
+
+```Dockerfile
+FROM ubuntu:22.04
+
+#ubuntu안에 nginx 직접 설치
+RUN apt-get update && \
+    apt-get install -y nginx && \
+    rm -rf /var/lib/apt/lists/*
+
+
+#내 컴퓨터의 HTML파일을 컨테이너 안의 NGINX 기본 웹 루트로 복사
+COPY src/index.html /var/www/html/index.html
+
+EXPOSE 80
+#NGINX가 백그라운드로 빠지지 않고 컨테이너의 메인 프로세스로
+#계속 실행
+#deamon off: 메인프로세스인 NGINX가 백이 아닌 포그라운드에서 실행유지
+#컨테이너 유지를 위해서
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 
