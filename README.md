@@ -474,13 +474,17 @@ ERROR: failed to build: failed to solve: failed to read dockerfile: open Dockerf
 
 ```
 
-# 컨테이너 실행
-
+**컨테이너 실행**
+```Powershell
 PS C:\code\web_base> docker run -d -p 8080:80 --name my-web-container web_base:v1
 df7e210e37da9352f074de279ff0324c18ff3356c425bf242b1e600a05e5a862
+```
 
 #컨테이너 상태가 up 임을 확인했습니다.<br>
-# localhost로 들어가서 확인해보니 정상적으로 사이트가 로드되었습니다.<br>
+
+**localhost로 들어가서 확인해보니 정상적으로 사이트가 로드되었습니다.**
+
+```Powershell
 docker ps
 CONTAINER ID   IMAGE      COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 df7e210e37da   web_base   "/docker-entrypoint.…"   8 seconds ago    Up 7 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-container
