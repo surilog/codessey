@@ -625,6 +625,7 @@ student@93ab17eef57f:~$ curl http://localhost:8080
 
 
 **포트 매핑 필요 이유:**
+
 -외부(호스트/인터넷)에서 격리된 컨테이너 내부의 서비스에 접속할 수 있도록 "외부 포트"와 "내부 포트" 사이에 통로를 뚫어주는 작업!<br>
 컨테이너는 기본적으로 독립된 공간!
 
@@ -643,7 +644,7 @@ student@93ab17eef57f:~$ curl http://localhost:8080
 ### Dockerfile 이미지 생성 및 기본 세팅 과정
 
 #### 1. 프로젝트 구조 
--my_web_server/src/index.html
+-my_web_server/src/index.html<br>
 -my_web_server/Dockerfile
 
 #### 2.소스코드 및 Dockerfile 내용
@@ -758,7 +759,7 @@ CONTAINER ID   IMAGE                 COMMAND                   CREATED         S
 <img width="681" height="335" alt="Image" src="https://github.com/user-attachments/assets/2c4ce208-8d15-48a8-b5b5-612879a88a97" />
 
 **포트매핑 증거**
-
+하나의 이미지로 여러 개의 독립된 컨테이너들이 동시에 구동 된 증거
 ```Powershell
 C:\Users\my_web_server> docker ps
 CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
@@ -843,14 +844,15 @@ Hello, Docker Volume! This data is persistent
 ### 바인드 마운트 반영
 
 #### 1. 개요 및 개념
-**바인드 마운트란?** 호스트 시스템의 특정 파일이나 디렉토리를 컨테이너 내부 경로로 직접 공유하는 방식입니다.
+**바인드 마운트란?** 호스트 시스템의 특정 파일이나 디렉토리를 컨테이너 내부 경로로 직접 공유하는 방식입니다.<br>
 **주요 특징:** 
-   호스트에서 소스 코드를 수정하면 컨테이너 내부에도 **실시간으로 즉시 반영**됩니다.
+   호스트에서 소스 코드를 수정하면 컨테이너 내부에도 **실시간으로 즉시 반영**됩니다.<br>
    개발 환경에서 빌드 과정 없이 코드 변경 사항을 테스트할 때 매우 유용합니다.
 
 #### 2. 바인드 마운트 실습 절차
 
 ##### 호스트 디렉토리 및 테스트 파일 생성
+
 호스트에 컨테이너와 연결할 폴더와 HTML 파일 만들기.
 
 **PowerShell / Bash 명령어:**
@@ -863,13 +865,15 @@ docker run -d `
   -v "C:\Users\yangh\code\my_web_server\src:/usr/share/nginx/html" `
   nginx  
 ```
-바인드 마운트 확인 페이지!
+바인드 마운트 확인 페이지!<br>
+
 <img width="337" height="150" alt="Image" src="https://github.com/user-attachments/assets/cc2eb858-3246-4fae-b0db-f74af4310398" />
 
-바인드 마운트 증거
+바인드 마운트 증거<br>
+
 <img width="489" height="108" alt="Image" src="https://github.com/user-attachments/assets/49384033-a474-41bf-86a7-3e0a8e833df1" />
 
-바인드 마운트 성공!
+바인드 마운트 성공!<br>
 <img width="369" height="180" alt="Image" src="https://github.com/user-attachments/assets/d251cc7a-2a90-49e0-a034-929f5fc1c279" />
 
 
