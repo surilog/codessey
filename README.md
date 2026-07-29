@@ -954,8 +954,9 @@ To https://github.com/surilog/codessey.git
    42abdcb..ef5f03f  main -> main
 branch 'main' set up to track 'origin/main'.
 ```
-처음에 git push -u origin main을 하엿지만 다음과 같은 오류가 발생했습니다.
-이 오류는 찾아보니 Github 페이지에는 있는 파일들이 local에 없어서 생기는 오류여서 github에 있는 파일을 제 local로 가져와 합친 후 다시 올려 해결했습니다.
+처음에 git push -u origin main을 하엿지만 다음과 같은 오류가 발생했습니다.<br>
+이 오류는 찾아보니 Github 페이지에는 있는 파일들이 local에 없어서 생기는 오류여서 github에 있는 파일을 제 local로 가져와 합친 후 다시 올려 해결했습니다.<br>
+
 ```powershell
  git push -u origin main
 To https://github.com/surilog/codessey.git
@@ -967,7 +968,12 @@ hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 ```
+```Powershell
+# 1. 원격의 내용을 가져오되, 서로 관련 없는 기록이라도 합치도록 허용
+git pull origin main --allow-unrelated-histories
 
+git push -u origin main
+```
 ### Github와 vscode 연동 확인
 
 <img width="880" height="436" alt="Image" src="https://github.com/user-attachments/assets/86e6cbed-1df7-4011-93bd-81f49cb8a43c" />
@@ -1020,18 +1026,18 @@ CONTAINER ID   IMAGE               COMMAND                   CREATED          ST
 
 #### 1. 문제 상황
 
-상황: Ubuntu 베이스 이미지에 NGINX를 설치하고 docker run으로 컨테이너를 실행했으나, 컨테이너가 실행 직후 바로 종료됨 (Exited (0) 상태).
-로그 확인: docker ps -a 명령어로 확인 시 컨테이너가 Up 상태가 아닌 종료된 상태로 표시됨.
+상황: Ubuntu 베이스 이미지에 NGINX를 설치하고 docker run으로 컨테이너를 실행했으나, 컨테이너가 실행 직후 바로 종료됨 (Exited (0) 상태).<br>
+로그 확인: docker ps -a 명령어로 확인 시 컨테이너가 Up 상태가 아닌 종료된 상태로 표시됨.<br>
 
 #### 2. 원인 분석
 
-Docker의 특징: Docker 컨테이너는 내부에 실행 중인 **메인 프로세스**가 종료되면 컨테이너 자체도 종료됨.
-NGINX의 동작 방식: NGINX는 기본적으로 '데몬(Daemon)' 모드로 설계되어 실행 시 백그라운드로 숨어버림.
-결과: Docker 입장에서는 "어? 실행시킨 프로그램이 끝났네?"라고 판단하여 컨테이너를 자동으로 종료!
+Docker의 특징: Docker 컨테이너는 내부에 실행 중인 **메인 프로세스**가 종료되면 컨테이너 자체도 종료됨.<br>
+NGINX의 동작 방식: NGINX는 기본적으로 '데몬(Daemon)' 모드로 설계되어 실행 시 백그라운드로 숨어버림.<br>
+결과: Docker 입장에서는 "어? 실행시킨 프로그램이 끝났네?"라고 판단하여 컨테이너를 자동으로 종료!<br>
 
 #### 3. 해결 방법
 
-Dockerfile 수정: NGINX가 백그라운드로 넘어가지 않고 **포그라운드**에서 계속 실행되도록 설정을 수정했습니다.
+Dockerfile 수정: NGINX가 백그라운드로 넘어가지 않고 **포그라운드**에서 계속 실행되도록 설정을 수정했습니다.<br>
 명령어: CMD ["nginx", "-g", "daemon off;"]
 
 
