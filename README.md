@@ -307,15 +307,21 @@ CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT   MEM %     NET 
 ```
 ## 8. 컨테이너 실행 실습
 
-```shell
+**hello-world 실행 성공을 기록**
+```Powershell
 # hello-world 실행 성공을 기록
 docker run hello-world
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
 
+```
+**ubuntu 컨테이너 실행 후 수행 결과 기록**
+```Powershell
 # 우분투 이미지 받고 /bin/bash 쉘로 실행
 # -it : 컨테이너 안의 터미널과 내 키보드/화면을 연결해서 상호작용하기 위한 옵션.
+# -i : 입력 채널을 열어 키보드의 입력이 -> 터미널로 들어가도록 함
+# -t : 가상터미널 배정, 즉 화면 프레임워크(줄바꿈, 색상 지원, root@xxxx:)
 docker run -it ubuntu:24.04 /bin/bash
 root@xxxx:/#
 
@@ -327,23 +333,27 @@ bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  s
 root@xxxx:/# echo test1
 test1
 
-# 컨테이너 관찰
-# exit(컨테이너 정지)
-exit
+```
+**컨테이너 종료/유지(attach/exec 등)의 차이**
+
+**exit(컨테이너 정지)**
+
+```Powershell
 docker ps
 root@xxxx:/# exit
-
 exit
 
 PS C:\WINDOWS\system32> docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
-#컨테이너의 main 프로세스(bash)를 종료하니 컨에너도 함께 정지.
+#컨테이너의 main 프로세스(bash)를 종료하니 컨테이너도 함께 정지.
 PS C:\WINDOWS\system32> docker ps -a
 CONTAINER ID   IMAGE          COMMAND         CREATED          STATUS                      PORTS     NAMES
 317cfb683799   ubuntu:24.04   "/bin/bash"     5 minutes ago    Exited (0) 26 seconds ago             friendly_heyrovsky
+```
+**attach명령어로 실행중인 컨테이너의 메인 화면으로 연결**
+```Powershell
 
-# attach명령어로 실행중인 컨테이너의 메인 화면으로 연결
 PS C:\WINDOWS\system32> docker start 317cfb683799
 317cfb683799
 
@@ -354,10 +364,11 @@ CONTAINER ID   IMAGE          COMMAND       CREATED         STATUS          PORT
 
 PS C:\WINDOWS\system32> docker attach 317cfb683799
 root@317cfb683799:/#
+```
+**Ctrl + P, Q(컨테이너 유지-Detach)**
 
-# Ctrl + P, Q(컨테이너 유지-Detach)
-# 컨테이너는 실행 되는 상태로 내 터미널만 나오기.
-
+**컨테이너는 실행 되는 상태로 내 터미널만 나오기.**
+```Powershell
 #Ctrl + P ,Q
 root@317cfb683799:/# read escape sequence
 
@@ -367,10 +378,10 @@ PS C:\WINDOWS\system32> docker ps
 
 CONTAINER ID   IMAGE          COMMAND       CREATED          STATUS         PORTS     NAMES
 317cfb683799   ubuntu:24.04   "/bin/bash"   12 minutes ago   Up 3 minutes             friendly_heyrovsky
-
-# exec로 실행 중인 컨테이너에 들어가기
-# 즉, 샐행 중인 컨테이너에 새로운 문을 하나 더 열고 들어가기
-# it를 꼭 사용해야 된다.
+```
+**exec로 실행 중인 컨테이너에 들어가기**
+**즉, 샐행 중인 컨테이너에 새로운 문을 하나 더 열고 들어가기**
+```Powershell
 
 PS C:\WINDOWS\system32> docker exec -it 317cfb683799 /bin/bash
 root@317cfb683799:/# exit
