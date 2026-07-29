@@ -407,16 +407,16 @@ CONTAINER ID   IMAGE          COMMAND       CREATED          STATUS         PORT
 ### (A) 웹 서버 베이스 이미지 활용
 
 #### 선택한 베이스 이미지
-선택한 베이스 이미지는 **nginx:latest** 입니다.
+선택한 베이스 이미지는 **nginx:latest** 입니다.<br>
 **선택 이유**: 가장 가볍고 널리 쓰이는 웹 서버 이미지이며, 정적 파일(HTML)만을 교체할 때 커스텀 **결과를 즉각 확인**하기 좋아서 선택했습니다.
 
 #### 커스텀 포인트 및 목적
-파일 교체 (index.html): NGINX의 기본 시작 페이지 대신, 무엇을 위한 페이지인지 알려주기 위함입니다.
+파일 교체 (index.html): NGINX의 기본 시작 페이지 대신, 무엇을 위한 페이지인지 알려주기 위함입니다.<br>
 포트 포워딩 설정: 호스트(내 컴퓨터)의 8080 포트와 컨테이너의 80 포트를 연결하여 웹 브라우저에서 접속 가능하게 했습니다.
 
 #### 빌드/실행 명령 + 핵심결과
 
-1. web_base라는 폴더를 만들고 폴더 안에 간단한 정적 index.html 파일을 만듭니다.
+**1. web_base라는 폴더를 만들고 폴더 안에 간단한 정적 index.html 파일을 만듭니다.**
 ```html
 <!DOCTYPE html>
 <html>
@@ -430,7 +430,7 @@ CONTAINER ID   IMAGE          COMMAND       CREATED          STATUS         PORT
 </body>
 </html>
 ```
-2. 같은 폴더 안에 Dockerfile 을 만들고 다음과 같이 작성해줍니다.
+**2. 같은 폴더 안에 Dockerfile 을 만들고 다음과 같이 작성해줍니다.**
 
 ```Dockerfile
 # 1. 베이스 이미지 선택
@@ -444,7 +444,7 @@ COPY index.html /usr/share/nginx/html/index.html
 EXPOSE 80
 ```
 
-3. webshell
+**3. 이미지 빌드 및 컨테이너 실행**
 
 ```shell
 
@@ -458,8 +458,12 @@ PS C:\web_base> docker build -t web_base:v1 .
 # web_base:v1 . 에서 v1은 기존 이미지인 web_base에 대한 태그 참조를 새로운 태그와 함께 저장.<br>
 # .은 현재 경로를 의미 / 즉, 현재 경로에 있어도 . 을 사용하지 않으면 이미지 업로드가 실패합니다!<br>
 # 반대로 web_base 경로가 아닌 다른 경로에 있는데 . 을 사용해도 이미지 업로드가 실패 합니다!<br>
+# -t 이미지 이름과 태그를 부여해주기 위함입니다.
+```
 
-# 실패 코드와 오류 내용
+**실패 코드와 오류 내용**
+```Powershell
+
 PS C:\code> docker build -t web_base:v1 .
 [+] Building 0.2s (1/1) FINISHED                                                                                                                                                              docker:desktop-linux
  => [internal] load build definition from Dockerfile                                                                                                                                                          0.1s
@@ -468,11 +472,11 @@ ERROR: failed to build: failed to solve: failed to read dockerfile: open Dockerf
 
 #dockerfile이 없어 찾지 못하니 당연히 실패했던 것 같습니다.
 
-
+```
 
 # 컨테이너 실행
 
-PS C:\web_base> docker run -d -p 8080:80 --name my-web-container web_base:v1
+PS C:\code\web_base> docker run -d -p 8080:80 --name my-web-container web_base:v1
 df7e210e37da9352f074de279ff0324c18ff3356c425bf242b1e600a05e5a862
 
 #컨테이너 상태가 up 임을 확인했습니다.<br>
@@ -496,10 +500,12 @@ ubuntu:22.04 (익숙한 리눅스 환경을 구축하기 위해 선택)
 
 #### 빌드/실행 결과:
 
-docker build 과정에서 패키지 설치 로그 확인.<br>
-docker ps를 통해 healthy 상태 및 student 계정 접속 확인.<br>
+docker build 과정에서 패키지 설치 로그 확인<br>
 
-1. linux_base 폴더를 만들고 Dockerfile을 작성해주었습니다.<br>
+docker ps를 통해 healthy 상태 및 student 계정 접속 확인<br>
+
+1. linux_base 폴더를 만들고 Dockerfile을 작성해주었습니다
+
 
 ```Dockerfile
 #베이스 이미지지정 ubuntu:22.04로 지정
@@ -516,14 +522,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     vim \
     && rm -rf /var/lib/apt/lists/*
-
+#rm -rf /var/lib/apt/lists/* 는 도커 이미지 용량을 줄이기 위해 넣었습니다.
+#apt-get update의 메타데이터(apt-get install 명령어를 위해)를 다 사용하고 용량을 줄이기 위해 추가했습니다!
 
 #root 계정으로 로그인시 보안 상 위험 존재(path traversal)
 # student라는 사용자명을 만들고 그 명으로 로그인하도록 함.
 RUN useradd -m student
 USER student
 
-# 작업 디렉터리 설정(로그인 시 바로 이동하 위치)
+# 작업 디렉터리 설정(로그인 시 바로 이동하여 위치)
 WORKDIR /home/student
 
 # 헬스체크 (컨테이너가 주기적으로 잘 작동하는지 확인)
@@ -537,9 +544,9 @@ CMD ["sleep", "3600"]
 ```
 
 
-2. shell에서 리눅스 기반 도커 이미지를 빌드하고 컨테이너를 실행하였습니다.
+2. Powershell에서 리눅스 기반 도커 이미지를 빌드하고 컨테이너를 실행하였습니다.
 
-```shell
+```Powershell
 
 #linux_base 도커 이미지 빌드
 
@@ -559,7 +566,9 @@ f1a4a9f68bae   linux_base:v1   "sleep 3600"              15 minutes ago   Up 15 
 
 # 컨테이너 실행 후 설정 확인
 PS C:\Users\yangh\code\linux_base> docker exec -it f1a4a9f68bae /bin/bash
-student@f1a4a9f68bae:~$
+student@f80cfad02027:~$ echo hello
+hello
+
 ```
 
 #### curl 명령어 실행을 위한 한경 세팅 변경
