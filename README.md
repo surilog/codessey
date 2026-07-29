@@ -581,8 +581,8 @@ hello
 CMD ["python3", "-m", "http.server", "8080"]
 ```
 
-이후 이전 컨테이너 삭제 후 이미지를 다시 build 해야 합니다.<br>
-저는 이미지를 다시 빌드 하지 않아서 많은 길을 돌아갔습니다.<br>
+이전 컨테이너 삭제 후 이미지를 다시 build 해야 합니다.<br>
+저는 이미지를 다시 빌드 하지 않아서 많은 길을 돌아갔었습니다.<br>
 
 #### 이전 컨테이너 삭제 후 다시 빌드 후 실행
 
@@ -703,7 +703,7 @@ CONTAINER ID   IMAGE              COMMAND                   CREATED         STAT
 
 <img width="855" height="302" alt="Image" src="https://github.com/user-attachments/assets/c7b0d8eb-2bfa-4bb4-a600-df96aa6196c6" />
 
-#### 4. 추가 ubuntu 베이스로 포트 매핑
+#### 4. [추가] ubuntu 베이스로 포트 매핑
 
 | 항목 | 내용 |
 | :--- | :--- |
@@ -1026,43 +1026,87 @@ CONTAINER ID   IMAGE               COMMAND                   CREATED          ST
 804cd078856b   my_port_server:v1   "/docker-entrypoint.…"   3 seconds ago    Up 2 seconds    0.0.0.0:8081->80/tcp, [::]:8081->80/tcp   my-port-server-container5
 
 ```
-### 2. NGINX 컨테이너 즉시 종료 현상 해결
+### 2.GitHub `git push` 거절 오류 (`[rejected] main -> main (fetch first)`)
 
-#### 1. 문제 상황
+#### 1) 문제 상황
+원격 저장소(GitHub) 연동 후 `git push -u origin main` 실행 시 푸시가 거절되며 아래와 같은 오류 메시지 발생.
 
-상황: Ubuntu 베이스 이미지에 NGINX를 설치하고 docker run으로 컨테이너를 실행했으나, 컨테이너가 실행 직후 바로 종료됨 (Exited (0) 상태).<br>
-로그 확인: docker ps -a 명령어로 확인 시 컨테이너가 Up 상태가 아닌 종료된 상태로 표시됨.<br>
-
-#### 2. 원인 분석
-
-Docker의 특징: Docker 컨테이너는 내부에 실행 중인 **메인 프로세스**가 종료되면 컨테이너 자체도 종료됨.<br>
-NGINX의 동작 방식: NGINX는 기본적으로 '데몬(Daemon)' 모드로 설계되어 실행 시 백그라운드로 숨어버림.<br>
-결과: Docker 입장에서는 "어? 실행시킨 프로그램이 끝났네?"라고 판단하여 컨테이너를 자동으로 종료!<br>
-
-#### 3. 해결 방법
-
-Dockerfile 수정: NGINX가 백그라운드로 넘어가지 않고 **포그라운드**에서 계속 실행되도록 설정을 수정했습니다.<br>
-명령어: CMD ["nginx", "-g", "daemon off;"]
-
-
-```Dockerfile
-FROM ubuntu:22.04
-
-#ubuntu안에 nginx 직접 설치
-RUN apt-get update && \
-    apt-get install -y nginx && \
-    rm -rf /var/lib/apt/lists/*
-
-
-#내 컴퓨터의 HTML파일을 컨테이너 안의 NGINX 기본 웹 루트로 복사
-COPY src/index.html /var/www/html/index.html
-
-EXPOSE 80
-#NGINX가 백그라운드로 빠지지 않고 컨테이너의 메인 프로세스로
-#계속 실행
-#deamon off: 메인프로세스인 NGINX가 백이 아닌 포그라운드에서 실행유지
-#컨테이너 유지를 위해서
-CMD ["nginx", "-g", "daemon off;"]
+```text
+! [rejected]        main -> main (fetch first)
+error: failed to push some refs to '[https://github.com/surilog/codessey.git](https://github.com/surilog/codessey.git)'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
 ```
 
+#### 2) 원인 분석
+GitHub 레포지토리 생성 시 자동으로 커밋된 파일(예: README.md)이 로컬 저장소에는 존재하지 않는 상태에서 로컬 커밋을 푸시하려 했기 때문에 발생.<br>
 
+Git은 원격 저장소의 최신 히스토리가 로컬에 포함되어 있지 않으면 데이터 충돌을 방지하기 위해 기본적으로 push를 차단함.
+
+#### 3) 해결 절차
+원격 저장소의 최신 커밋 내역을 로컬로 불러와 병합(Merge)한 후 다시 푸시 진행.<br>
+단, 로컬과 원격이 서로 별개로 생성되어 뿌리(Root commit)가 다르므로 --allow-unrelated-histories 옵션을 부여하여 강제 병합 실행.<br>
+
+```Powershell
+# 1. 서로 관련 없는 커밋 히스토리 병합 허용하여 pull 실행
+git pull origin main --allow-unrelated-histories
+
+# 2. 병합 완료 후 다시 원격 저장소로 push
+ git push -u origin main
+
+```
+
+### 2. Dockerfile 수정 후 반영 미흡 (이미지 미재빌드 문제)
+
+#### 1) 문제 상황
+Dockerfile 내부 명령어CMD ["python3", "-m", "http.server", "8080"])를 수정했으나, `docker run` 실행 시 변경사항이 반영되지 않고 이전 명령어(`sleep 3600`)로 컨테이너가 구동되는 현상 발생.
+
+#### 2) 원인 분석
+- Dockerfile 수정 후 `docker build`를 실행하지 않고 기존 태그의 이미지를 그대로 사용하여 컨테이너를 생성함.<br>
+- Docker는 이미 생성된 로컬 이미지를 참조하므로, Dockerfile 소스 코드가 바뀌더라도 **재빌드(`build`) 과정을 거치지 않으면 새로운 이미지가 생성되지 않음**.<br>
+
+#### 3) 해결 절차
+기존 컨테이너를 중지/삭제한 후, 수정된 Dockerfile을 기반으로 이미지를 재빌드하여 새 컨테이너 실행.<br>
+
+```Powershell
+# 1. 이전 설정으로 생성된 컨테이너 삭제
+docker rm -f my-linux-container
+
+# 2. Dockerfile 수정사항 반영을 위한 이미지 재빌드
+docker build -t linux_base:v1 .
+
+# 3. 새로 빌드된 이미지로 포트 매핑(-p 8081:8080)을 적용하여 컨테이너 실행
+docker run -d -p 8081:8080 --name my_linux_container linux_base:v1
+
+docker ps
+CONTAINER ID   IMAGE           COMMAND                   CREATED       STATUS                        PORTS                                         NAMES
+93ab17eef57f   linux_base:v1   "python3 -m http.ser…"   2 hours ago   Up 8 minutes (healthy)        0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp   my_linux_container
+
+
+# 4. 컨테이너 내부 진입 후 Python HTTP 서버 응답 확인
+docker exec -it my_linux_container /bin/bash
+student@93ab17eef57f:~$ curl http://localhost:8080
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Directory listing for /</title>
+</head>
+<body>
+<h1>Directory listing for /</h1>
+<hr>
+<ul>
+<li><a href=".bash_logout">.bash_logout</a></li>
+<li><a href=".bashrc">.bashrc</a></li>
+<li><a href=".profile">.profile</a></li>
+</ul>
+<hr>
+</body>
+</html>
+```
+
+위의 트러블 슈팅 해결 과정이 정말 짧아 보이고 단순하지만 저는 이것을 찾고 깨닫는 데 30분이 넘는 시간을 투자했습니다...
+그러니 잊지 맙시다. Dockerfile을 수정했을 때는 반드시 docker build 과정을 통해 이미지를 새로 생성한 후 컨테이너를 다시 띄워야 변경사항이 정상 적용됩니다!
