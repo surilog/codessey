@@ -416,9 +416,9 @@ PS C:\web_base> docker build -t web_base:v1 .
 
 
  => => unpacking to docker.io/library/web_base:latest                                                                                                                                                         0.1s
-# web_base:v1 . 에서 v1은 기존 이미지인 web_base에 대한 태그 참조를 새로운 태그와 함께 저장.
-# .은 현재 경로를 의미 / 즉, 현재 경로에 있어도 . 을 사용하지 않으면 이미지 업로드가 실패합니다!
-# 반대로 web_base 경로가 아닌 다른 경로에 있는데 . 을 사용해도 이미지 업로드가 실패 합니다!
+# web_base:v1 . 에서 v1은 기존 이미지인 web_base에 대한 태그 참조를 새로운 태그와 함께 저장.<br>
+# .은 현재 경로를 의미 / 즉, 현재 경로에 있어도 . 을 사용하지 않으면 이미지 업로드가 실패합니다!<br>
+# 반대로 web_base 경로가 아닌 다른 경로에 있는데 . 을 사용해도 이미지 업로드가 실패 합니다!<br>
 
 # 실패 코드와 오류 내용
 PS C:\code> docker build -t web_base:v1 .
@@ -436,8 +436,8 @@ ERROR: failed to build: failed to solve: failed to read dockerfile: open Dockerf
 PS C:\web_base> docker run -d -p 8080:80 --name my-web-container web_base:v1
 df7e210e37da9352f074de279ff0324c18ff3356c425bf242b1e600a05e5a862
 
-#컨테이너 상태가 up 임을 확인했습니다.
-# localhost로 들어가서 확인해보니 정상적으로 사이트가 로드되었습니다.
+#컨테이너 상태가 up 임을 확인했습니다.<br>
+# localhost로 들어가서 확인해보니 정상적으로 사이트가 로드되었습니다.<br>
 docker ps
 CONTAINER ID   IMAGE      COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 df7e210e37da   web_base   "/docker-entrypoint.…"   8 seconds ago    Up 7 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-container
@@ -450,17 +450,17 @@ ubuntu:22.04 (익숙한 리눅스 환경을 구축하기 위해 선택)
 
 #### 커스텀 포인트 및 목적:
 
-패키지(curl, vim) 설치: 컨테이너 내부에서 네트워크 테스트 및 파일 편집과 같은 기본 기능을 가능하게 했습니다..
-사용자(student) 추가: root 권한이 아닌 일반 사용자 계정을 사용하여 보안성을 향상시켰습니다.
-환경 변수(ENV): 애플리케이션의 이름과 버전을 관리하기 쉽게 설정하였습니다.
-헬스체크(HEALTHCHECK): 컨테이너의 네트워크 연결 상태를 주기적으로 감시하기 사용했습니다.
+패키지(curl, vim) 설치: 컨테이너 내부에서 네트워크 테스트 및 파일 편집과 같은 기본 기능을 가능하게 했습니다.<br>
+사용자(student) 추가: root 권한이 아닌 일반 사용자 계정을 사용하여 보안성을 향상시켰습니다.<br>
+환경 변수(ENV): 애플리케이션의 이름과 버전을 관리하기 쉽게 설정하였습니다.<br>
+헬스체크(HEALTHCHECK): 컨테이너의 네트워크 연결 상태를 주기적으로 감시하기 사용했습니다.<br>
 
 #### 빌드/실행 결과:
 
-docker build 과정에서 패키지 설치 로그 확인.
-docker ps를 통해 healthy 상태 및 student 계정 접속 확인.
+docker build 과정에서 패키지 설치 로그 확인.<br>
+docker ps를 통해 healthy 상태 및 student 계정 접속 확인.<br>
 
-1. linux_base 폴더를 만들고 Dockerfile을 작성해주었습니다.
+1. linux_base 폴더를 만들고 Dockerfile을 작성해주었습니다.<br>
 
 ```Dockerfile
 #베이스 이미지지정 ubuntu:22.04로 지정
@@ -529,8 +529,8 @@ student@f1a4a9f68bae:~$
 CMD ["python3", "-m", "http.server", "8080"]
 ```
 
-이후 이전 컨테이너 삭제 후 이미지를 다시 build 해야 합니다.
-저는 이미지를 다시 빌드 하지 않아서 많은 길을 돌아갔습니다.
+이후 이전 컨테이너 삭제 후 이미지를 다시 build 해야 합니다.<br>
+저는 이미지를 다시 빌드 하지 않아서 많은 길을 돌아갔습니다.<br>
 
 #### 이전 컨테이너 삭제 후 다시 빌드 후 실행
 
