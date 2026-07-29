@@ -115,10 +115,10 @@ snap  공개  다운로드  문서  바탕화면  비디오  사진  서식  음
 
 ```
 
-[+]절대경로와 상대경로 알고가기
+**[+]절대경로와 상대경로 알고가기**
 
-절대경로: 어디서 실행하든 항상 고정된 하나의 정확한 위치를 가리킵니다.
-상대경로: 현재 위치를 기준으로 합니다!
+**절대경로**: 어디서 실행하든 항상 고정된 하나의 정확한 위치를 가리킵니다.
+**상대경로**: 현재 위치를 기준으로 합니다!
 
 절대경로가 더 정확히 경로를 지정할 수 있지만 저는 사용하면서 간결하고 유연하게 사용했던 **상대경로**를 많이 사용했었던 것 같습니다.
 
@@ -153,7 +153,7 @@ $ touch file.txt ; ls -l
 # 허가권한: rw-r--r-- : 644 퍼미션 형식 구조로 8진수(r(읽기):4, w(쓰기):2, x(실행허용):1)로 표시됩니다.
 # 앞에서부터 3개는 사용자, 그룹, 기타 건한을 의미하며 644는 즉, 사용자는 읽기 쓰기, 그룹과 기타는 읽기 권한만 가지는 것 입니다.
 # 1: 링크 수
-# root: 그룹명
+# root: 사용자
 # root: 그룹명
 # 0 : 파일크기(아무것도 작성하지 않았습니다.)
 # 7월 28 09:54 : 마지막 변경된 시간과 날짜 
@@ -216,7 +216,7 @@ Client:
 
 ## 7. 도커 기본 운영 명령 수행
 
-```shell
+```Powershell
 # nginx라는 웹 서버 이미지를 내 컴퓨터로 다운로드
 docker pull nginx
 
@@ -225,39 +225,59 @@ Status: Downloaded newer image for nginx:latest
 # my-web이라는 이름의 컨테이너를 생성 
 docker run -d -p 80:80 --name my-web nginx 
 
-# -d : 데몬 모드(백그라운드에서 실행)
+# -d : 데몬 모드(백그라운드에서 실행) , 터미널 창을 차지하지 않지만 서비스가 계속 켜져있습니다.
 # -p : 80:80 내 컴퓨터의 80 번 포트와 컨테이너의 80 번 포트를 연결.
 
 # 현재 실행중인 컨테이너 확인
-docker ps 
-
-CONTAINER ID   IMAGE     COMMAND    CREATED    STATUS     PORTS     NAMES
-nginx     "/docker-entrypoint.…"   35 seconds ago   Up 33 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp   my-web
+PS C:\Users\yangh> docker ps
+CONTAINER ID   IMAGE     COMMAND                   CREATED         STATUS         PORTS                                 NAMES
+4119c554f1c5   nginx     "/docker-entrypoint.…"   4 minutes ago   Up 2 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp   my-web
 
 # 중지된 컨테이너까지 확인
+
 docker ps -a
 
 CONTAINER ID   IMAGE          COMMAND                   CREATED             STATUS                         PORTS                                 NAMES
    nginx          "/docker-entrypoint.…"   50 seconds ago      Up 48 seconds                  0.0.0.0:80->80/tcp, [::]:80->80/tcp   my-web
    ubuntu:24.04   "/bin/bash"               About an hour ago   Exited (0) About an hour ago                                         cool_bhaskara
 
-
+```
 # 실행중인 컨테이너 중지
+```Powershell
 docker stop my-web
 
-# 중지된 컨테이너 실행
-docker start my-web
+PS C:\Users\yangh> docker stop my-web
+my-web
+PS C:\Users\yangh> docker ps -a
+CONTAINER ID   IMAGE                 COMMAND                   CREATED          STATUS                     PORTS                  NAMES
+4119c554f1c5   nginx                 "/docker-entrypoint.…"   27 seconds ago   Exited (0) 6 seconds ago                          my-web
+```
 
-#컨테이너 삭제
+# 중지된 컨테이너 실행
+```Powershell
+PS C:\Users\yangh> docker start my-web
+my-web
+
+PS C:\Users\yangh> docker ps
+CONTAINER ID   IMAGE     COMMAND                   CREATED         STATUS         PORTS                                 NAMES
+4119c554f1c5   nginx     "/docker-entrypoint.…"   4 minutes ago   Up 2 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp   my-web
+```
+**컨테이너와 이미지 삭제 및 제거**
+
+```Powershell
+#컨테이너 삭제 (실행중이기 때문에 -f옵션 활용)
 docker rm -f my-web
+
 #다운로드 했던 이미지 삭제
 docker rmi nginx
 
 #모든 컨테이너 제거
 docker rm $(docker ps -aq)
 
-# 317cfb683799 컨테이너의 로그를 최근 10줄만 확인
+```
 
+# my-web 컨테이너의 로그를 최근 10줄만 확인
+```Powershell
 PS C:\WINDOWS\system32> docker logs --tail 10 317cfb683799
 drwxr-xr-x  12 root root 4096 Jun 10 02:05 usr/
 drwxr-xr-x  11 root root 4096 Jun 10 02:12 var/
@@ -269,14 +289,16 @@ root@317cfb683799:/# exit
 exit
 root@317cfb683799:/# exit
 exit
+```
 
-#stats 명령어를 활용해 nginx 컨테이너 리소스 확인
-docker stats -a 0463441f4828
+**stats 명령어를 활용해 nginx 컨테이너 리소스 확인**
+```Powershell
+docker stats 0463441f4828
 
 CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O     PIDS
 0463441f4828   my-web    0.00%     16.96MiB / 7.517GiB   0.22%     1.17kB / 126B   0B / 12.3kB   19
 
-#states -a 옵션을 활용해서 중지된 컨테이너 확인
+#states -a 옵션을 활용해서 정지된 컨테이너도 확인
 docker stats -a 317cfb683799
 
 CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT   MEM %     NET I/O   BLOCK I/O   PIDS
