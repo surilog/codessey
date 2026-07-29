@@ -586,10 +586,8 @@ student@93ab17eef57f:~$ curl http://localhost:8080
 ### Dockerfile 이미지 생성 및 기본 세팅 과정
 
 #### 1. 프로젝트 구조 
-my_web_server/
-├── src/
-│   └── index.html
-└── Dockerfile
+-my_web_server/src/index.html
+-my_web_server/Dockerfile
 
 #### 2.소스코드 및 Dockerfile 내용
 
