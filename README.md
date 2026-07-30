@@ -5,7 +5,7 @@
 ## 2. 실행환경(OS/쉘/터미널, Docker 버전, Git버전)
 OS: ubuntu 24.04 LTS / Windows 11 (Docker Desktop) / macOS (Apple Silicon / Intel)
 
-Shell : Zsh / Bash / PowerShell
+Shell : Zsh / Bash / ps1
 
 Docker :  OrbStack (Docker Engine v29.6.2 호환), 29.6.2
 
@@ -216,7 +216,7 @@ Client:
 
 ## 7. 도커 기본 운영 명령 수행
 
-```Powershell
+```ps1
 # nginx라는 웹 서버 이미지를 내 컴퓨터로 다운로드
 docker pull nginx
 
@@ -243,7 +243,7 @@ CONTAINER ID   IMAGE          COMMAND                   CREATED             STAT
 
 ```
 # 실행중인 컨테이너 중지
-```Powershell
+```ps
 docker stop my-web
 
 PS C:\Users\yangh> docker stop my-web
@@ -254,7 +254,7 @@ CONTAINER ID   IMAGE                 COMMAND                   CREATED          
 ```
 
 # 중지된 컨테이너 실행
-```Powershell
+```ps1
 PS C:\Users\yangh> docker start my-web
 my-web
 
@@ -264,7 +264,7 @@ CONTAINER ID   IMAGE     COMMAND                   CREATED         STATUS       
 ```
 **컨테이너와 이미지 삭제 및 제거**
 
-```Powershell
+```ps1
 #컨테이너 삭제 (실행중이기 때문에 -f옵션 활용)
 docker rm -f my-web
 
@@ -277,7 +277,7 @@ docker rm $(docker ps -aq)
 ```
 
 # my-web 컨테이너의 로그를 최근 10줄만 확인
-```Powershell
+```ps1
 PS C:\WINDOWS\system32> docker logs --tail 10 317cfb683799
 drwxr-xr-x  12 root root 4096 Jun 10 02:05 usr/
 drwxr-xr-x  11 root root 4096 Jun 10 02:12 var/
@@ -292,7 +292,7 @@ exit
 ```
 
 **stats 명령어를 활용해 nginx 컨테이너 리소스 확인**
-```Powershell
+```ps1
 docker stats 0463441f4828
 
 CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O         BLOCK I/O     PIDS
@@ -308,7 +308,7 @@ CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT   MEM %     NET 
 ## 8. 컨테이너 실행 실습
 
 **hello-world 실행 성공을 기록**
-```Powershell
+```ps1
 # hello-world 실행 성공을 기록
 docker run hello-world
 
@@ -317,7 +317,7 @@ This message shows that your installation appears to be working correctly.
 
 ```
 **ubuntu 컨테이너 실행 후 수행 결과 기록**
-```Powershell
+```ps1
 # 우분투 이미지 받고 /bin/bash 쉘로 실행
 # -it : 컨테이너 안의 터미널과 내 키보드/화면을 연결해서 상호작용하기 위한 옵션.
 # -i : 입력 채널을 열어 키보드의 입력이 -> 터미널로 들어가도록 함
@@ -338,7 +338,7 @@ test1
 
 **exit(컨테이너 정지)**
 
-```Powershell
+```ps1
 docker ps
 root@xxxx:/# exit
 exit
@@ -352,7 +352,7 @@ CONTAINER ID   IMAGE          COMMAND         CREATED          STATUS           
 317cfb683799   ubuntu:24.04   "/bin/bash"     5 minutes ago    Exited (0) 26 seconds ago             friendly_heyrovsky
 ```
 **attach명령어로 실행중인 컨테이너의 메인 화면으로 연결**
-```Powershell
+```ps1
 
 PS C:\WINDOWS\system32> docker start 317cfb683799
 317cfb683799
@@ -368,7 +368,7 @@ root@317cfb683799:/#
 **Ctrl + P, Q(컨테이너 유지-Detach)**
 
 **컨테이너는 실행 되는 상태로 내 터미널만 나오기.**
-```Powershell
+```ps1
 #Ctrl + P ,Q
 root@317cfb683799:/# read escape sequence
 
@@ -381,7 +381,7 @@ CONTAINER ID   IMAGE          COMMAND       CREATED          STATUS         PORT
 ```
 **exec로 실행 중인 컨테이너에 들어가기**
 **즉, 샐행 중인 컨테이너에 새로운 문을 하나 더 열고 들어가기**
-```Powershell
+```ps1
 
 PS C:\WINDOWS\system32> docker exec -it 317cfb683799 /bin/bash
 root@317cfb683799:/# exit
@@ -462,7 +462,7 @@ PS C:\web_base> docker build -t web_base:v1 .
 ```
 
 **실패 코드와 오류 내용**
-```Powershell
+```ps1
 
 PS C:\code> docker build -t web_base:v1 .
 [+] Building 0.2s (1/1) FINISHED                                                                                                                                                              docker:desktop-linux
@@ -475,7 +475,7 @@ ERROR: failed to build: failed to solve: failed to read dockerfile: open Dockerf
 ```
 
 **컨테이너 실행**
-```Powershell
+```ps1
 PS C:\code\web_base> docker run -d -p 8080:80 --name my-web-container web_base:v1
 df7e210e37da9352f074de279ff0324c18ff3356c425bf242b1e600a05e5a862
 ```
@@ -484,7 +484,7 @@ df7e210e37da9352f074de279ff0324c18ff3356c425bf242b1e600a05e5a862
 
 **localhost로 들어가서 확인해보니 정상적으로 사이트가 로드되었습니다.**
 
-```Powershell
+```ps1
 docker ps
 CONTAINER ID   IMAGE      COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 df7e210e37da   web_base   "/docker-entrypoint.…"   8 seconds ago    Up 7 seconds    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-web-container
@@ -548,9 +548,9 @@ CMD ["sleep", "3600"]
 ```
 
 
-2. Powershell에서 리눅스 기반 도커 이미지를 빌드하고 컨테이너를 실행하였습니다.
+2. ps1에서 리눅스 기반 도커 이미지를 빌드하고 컨테이너를 실행하였습니다.
 
-```Powershell
+```ps1
 
 #linux_base 도커 이미지 빌드
 
@@ -764,7 +764,7 @@ CONTAINER ID   IMAGE                 COMMAND                   CREATED         S
 
 **포트매핑 증거**
 하나의 이미지로 여러 개의 독립된 컨테이너들이 동시에 구동 된 증거
-```Powershell
+```ps1
 C:\Users\my_web_server> docker ps
 CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 995056059ad0   my_port_server:v1   "/docker-entrypoint.…"   3 minutes ago    Up 3 minutes    0.0.0.0:8084->80/tcp, [::]:8084->80/tcp   my-port-server-container2
@@ -859,10 +859,10 @@ Hello, Docker Volume! This data is persistent
 
 호스트에 컨테이너와 연결할 폴더와 HTML 파일 만들기.
 
-**PowerShell / Bash 명령어:**
+**ps1 / Bash 명령어:**
 내 컴퓨터의 C:\Users\yangh\code\my_web_server\src 폴더를 컨테이너에 연결
 
-  ```powershell
+  ```ps1
 docker run -d `
   --name bind-mount-container `
   -p 8082:80 `
@@ -961,7 +961,7 @@ branch 'main' set up to track 'origin/main'.
 처음에 git push -u origin main을 하엿지만 다음과 같은 오류가 발생했습니다.<br>
 이 오류는 찾아보니 Github 페이지에는 있는 파일들이 local에 없어서 생기는 오류여서 github에 있는 파일을 제 local로 가져와 합친 후 다시 올려 해결했습니다.<br>
 
-```powershell
+```ps1
  git push -u origin main
 To https://github.com/surilog/codessey.git
  ! [rejected]        main -> main (fetch first)
@@ -972,7 +972,7 @@ hint: the same ref. If you want to integrate the remote changes, use
 hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 ```
-```Powershell
+```ps1
 # 1. 원격의 내용을 가져오되, 서로 관련 없는 기록이라도 합치도록 허용
 git pull origin main --allow-unrelated-histories
 
@@ -990,7 +990,7 @@ git push -u origin main
 #### 문제상황
 새로운 컨테이너를 실행하기 위해 `docker run -d -p 8080:80 ...` 명령어를 입력하였으나, 컨테이너가 생성되지 않고 아래와 같은 포트 바인딩 에러 메시지가 발생함.
 
-```powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker run -d -p 8080:80 --name my-port-server-container4 my_port_server:v1
 fca635b801235e2d5eec5f4259dae61514e964acf26249c26d9d5a3a8ec0576c
 
@@ -1005,7 +1005,7 @@ docker: Error response from daemon: failed to set up container networking: drive
 
 **방법1. 기존에 8080 포트를 점유 중인 컨테이너 확인 및 중지/삭제**
 
-```powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker ps
 CONTAINER ID   IMAGE               COMMAND                   CREATED          STATUS          PORTS                                     NAMES
 7552f0f1f3b6   my_port_server:v1   "/docker-entrypoint.…"   2 minutes ago    Up 2 minutes    0.0.0.0:8080->80/tcp, [::]:8080->80/tcp   my-port-server-container3
@@ -1017,7 +1017,7 @@ my-port-server-container3
 
 **방법2. 호스트의 미사용 포트로 변경하여 실행**
 
-```powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker run -d -p 8081:80 --name my-port-server-container5 my_port_server:v1
 804cd078856b13611065fdc22782277df9064fb10209dc3e12c469eacf2a5483
 
@@ -1049,7 +1049,7 @@ Git은 원격 저장소의 최신 히스토리가 로컬에 포함되어 있지 
 원격 저장소의 최신 커밋 내역을 로컬로 불러와 병합(Merge)한 후 다시 푸시 진행.<br>
 단, 로컬과 원격이 서로 별개로 생성되어 뿌리(Root commit)가 다르므로 --allow-unrelated-histories 옵션을 부여하여 강제 병합 실행.<br>
 
-```Powershell
+```ps1
 # 1. 서로 관련 없는 커밋 히스토리 병합 허용하여 pull 실행
 git pull origin main --allow-unrelated-histories
 
@@ -1070,7 +1070,7 @@ Dockerfile 내부 명령어CMD ["python3", "-m", "http.server", "8080"])를 수�
 #### 3) 해결 절차
 기존 컨테이너를 중지/삭제한 후, 수정된 Dockerfile을 기반으로 이미지를 재빌드하여 새 컨테이너 실행.<br>
 
-```Powershell
+```ps1
 # 1. 이전 설정으로 생성된 컨테이너 삭제
 docker rm -f my-linux-container
 
@@ -1146,7 +1146,7 @@ services:
 ```
 **2. 터미널에서 실행**
 
-```Powershell
+```ps1
 # 컨테이너 데몬 실행 (-d 옵션)
 $ docker compose up -d
 
@@ -1161,7 +1161,7 @@ time="2026-07-30T08:11:26+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_w
 위 사진처럼 docker -run 명령어가 아닌 공유된 "문서화된 실행 설정 파일"을 docker compose up 한 줄로 띄우는 데 성공했습니다!
 
 **접속 테스트**
-```Powershell
+```ps1
 # 접속 테스트
 $ curl http://localhost:8080
 
@@ -1273,7 +1273,7 @@ services:
 **1. 멀티 컨테이너 실행**
 
 **멀티 컨테이너 일괄 실행 (-d: 백그라운드)**
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose up -d
 time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
 [+] up 17/17
@@ -1283,7 +1283,7 @@ time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_w
  ✔ Container multi-web      Started                               1.0s
 ```
 **2. 실행 중인 컨테이너 상태 확인**
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose ps
 
 time="2026-07-30T09:07:32+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
@@ -1300,7 +1300,7 @@ Docker Compose는 동일한 docker-compose.yml에 정의된 서비스 간에 전
 따라서 IP 주소가 아닌 서비스 이름(cache-redis, db-postgres)으로 직접 통신할 수 있습니다.
 
 **web 컨테이너 내부 진입**
-```Powershell
+```ps1
 
 PS C:\Users\yangh\code\my_web_server> docker exec -it multi-web bash
 root@e178700e4dbb:/# 
@@ -1349,7 +1349,7 @@ Docker Compose가 **자체 가상 네트워크를 구성**하여 **IP 주소 지
 
 **compose up** 명령어를 통해 실행
 
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose up -d
 time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
 [+] up 17/17
@@ -1360,7 +1360,7 @@ time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_w
 ```
 **docker compose ps** compose로 관리되는 컨테이너 상태 확인
 
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose ps
 
 time="2026-07-30T09:07:32+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
@@ -1372,7 +1372,7 @@ multi-web        nginx:latest         "/docker-entrypoint.…"   web           A
 
 **docker compose logs -f web** web서비스의 실시간 로그 출력
 
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose logs -f web      
 time="2026-07-30T09:24:18+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potentPial confusion"
 multi-web  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
@@ -1413,7 +1413,7 @@ multi-web  | 2026/07/30 00:12:27 [notice] 1#1: unknown process 88 exited with co
 ```
 
 **docker compose down** 명령어로 컨테이너 및 전용 네트워크까지 일괄 삭제
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> docker compose down
 time="2026-07-30T09:26:16+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
 [+] down 4/4
@@ -1426,7 +1426,7 @@ time="2026-07-30T09:26:16+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_w
 <img width="634" height="540" alt="Image" src="https://github.com/user-attachments/assets/4943e8c4-e557-48c8-ba50-483f082badb7" />
 
 **필수 운영 루틴**
-```Powershell
+```ps1
 # 1. 상태 확인
 $ docker compose ps
 
@@ -1484,7 +1484,7 @@ services:
 **3. 실행 및 적용 확인**
 
 실행 (Docker Compose가 같은 폴더의 .env를 자동으로 읽어옵니다)
-```Powershell
+```ps1
 docker compose up -d
 
 PS C:\Users\yangh\code\my_web_server> docker compose up -d
@@ -1498,7 +1498,7 @@ time="2026-07-30T09:53:07+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_w
 ```
 
 #### 2. 9000번 포트로 웹 서버가 잘 연결되는지 테스트
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> curl http://localhost:9000
 
 StatusCode        : 200
@@ -1547,7 +1547,7 @@ RawContentLength  : 896
 ##### 3. DB 컨테이너에 설정된 환경 변수 확인
 
 **grep 명령어 사용 오류**
-```Powershell
+```ps1
 docker exec -it env-db-test env | grep POSTGRES
 
 grep : 'grep' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 
@@ -1561,7 +1561,7 @@ grep : 'grep' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수
     + FullyQualifiedErrorId : CommandNotFoundException
 ```
 컨테이너 내부에 진입 후 바로 POSTGRES 즉 yml 파일의 USER와 PASSWORD를 불러오려고 했습니다.<br>
-하지만 찾아보니 Powershell에서는 grep를 사용 할 수 없다고 떠서 검색을 통해 grep의 역할을 해주는 **Select-String**을 찾아 대체했습니다!
+하지만 찾아보니 ps1에서는 grep를 사용 할 수 없다고 떠서 검색을 통해 grep의 역할을 해주는 **Select-String**을 찾아 대체했습니다!
 
 ```Powershel
 PS C:\Users\yangh\code\my_web_server> docker exec -it env-db-test env | Select-String "POSTGRES"
@@ -1581,12 +1581,12 @@ SSH 방식: 내 컴퓨터에 비밀키(Private Key)를 보관하고, GitHub에 �
 
 **1. 내 컴퓨터에서 SSH 키쌍 생성**
 
-```Powershell
+```ps1
 # 이메일 주소 입력 후 엔터 3번 (기본 경로 및 비밀번호 없음)
 $ ssh-keygen -t ed25519 -C "이메일주소입력"
 ```
 **2. 생성된 공개키(Public Key) 복사**
-```Powershell
+```ps1
 cat ~/.ssh/id_ed25519.pub
 
 ```
@@ -1594,26 +1594,26 @@ cat ~/.ssh/id_ed25519.pub
 **3.Github에 등록 후 접속 및 Remote URL 변경 테스트**
 
 **SSH 접속 테스트**
-```Powershell
+```ps1
 ssh -T git@github.com
 
 Hi surilog! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
 **기존 HTTPS 원격 주소를 SSH 주소로 변경**
-```Powershell
+```ps1
 git remote set-url origin git@github.com:surilog/codessey.git
 ```
 
 **주소 변경 확인**
-```Powershell
+```ps1
 PS C:\Users\yangh\code\my_web_server> git remote -v
 origin  git@github.com:surilog/codessey.git (fetch)
 origin  git@github.com:surilog/codessey.git (push)
 ```
 
 **테스트 푸시**
-```Powershell
+```ps1
 git push origin main
 ```
 <img width="394" height="96" alt="Image" src="https://github.com/user-attachments/assets/ae54cda1-7ae1-44a6-9383-7c4c0de336ff" />
