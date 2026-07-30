@@ -1244,6 +1244,7 @@ services:
     container_name: multi-web
     ports:
       - "8080:80"
+#depnds_on의 의미: 캐시 서버와 데이터베이스가 모두 실행이 되야 실행된다?
     depends_on:
       - cache-redis
       - db-postgres
@@ -1618,3 +1619,9 @@ git push origin main
 <img width="394" height="96" alt="Image" src="https://github.com/user-attachments/assets/ae54cda1-7ae1-44a6-9383-7c4c0de336ff" />
 
 <img width="339" height="27" alt="Image" src="https://github.com/user-attachments/assets/fb8abfca-21e6-4390-b93b-8ee845c39a1e" />
+
+
+## 동료평가를 통해 배우게 된 내용.
+
+1. 컨테이너가 막혀 있어서 통신이 안된다. 
+피드백: 컨테이너와 도커의 관계를 생각해보자. 
