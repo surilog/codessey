@@ -6,7 +6,6 @@
 OS: ubuntu 24.04 LTS / Windows 11 (Docker Desktop) / macOS (Apple Silicon / Intel)
 
 Shell : Zsh / Bash / ps1
-
 Docker :  OrbStack (Docker Engine v29.6.2 호환), 29.6.2
 
 Git : 2.45.2
@@ -446,7 +445,7 @@ EXPOSE 80
 
 **3. 이미지 빌드 및 컨테이너 실행**
 
-```shell
+```ps1
 
 # 도커 이미지 빌드
 PS C:\web_base> docker build -t web_base:v1 .
@@ -603,7 +602,7 @@ CONTAINER ID   IMAGE           COMMAND                   CREATED       STATUS   
 ```
 #### curl 명령어 실행 확인
 
-```shell
+```bash
 student@93ab17eef57f:~$ curl http://localhost:8080
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -689,7 +688,7 @@ EXPOSE 80
 ```
 
 #### 3. 접속화면
-```shell
+```ps1
 docker build -t my_web_server:v1 .
 [+] Building 2.2s (8/8) FINISHED 
 
@@ -750,7 +749,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ```
 
-```shell
+```ps1
 docker build --no-cache -t ubuntu_nginx_web:v3 -f Dockerfile.ubuntu .
 
 docker run -d -p 8081:80 --name ubuntu_nginx_container ubuntu_nginx_web:v3
@@ -797,7 +796,7 @@ CONTAINER ID   IMAGE               COMMAND                   CREATED          ST
 
 **1. 볼륨 생성후 확인**
 
-```shell
+```ps1
 docker volume create my_persistence_vol
 
 docker volume ls
@@ -812,7 +811,7 @@ local     mydata
 **2. 컨테이너 생성 및 데이터 저장**
 생성한 볼륨을 container_1의 /data 경로에 마운트하여 실행하고, 내부에 테스트 파일(test.txt)을 생성했습니다.
 
-```shell
+```ps1
 > docker run -it --name container_1 -v my_persistence_vol:/data ubuntu bash
 Status: Downloaded newer image for ubuntu:latest
 root@e:/# echo "Hello, Docker Volume! This data is persistent." > /data/test.txt
@@ -824,7 +823,7 @@ Hello, Docker Volume! This data is persistent.
 
 **3. 컨테이너 삭제 및 새 컨테이너에서 데이터 확인**
 
-```shell
+```ps1
 >  docker rm container_1   
 container_1
 
@@ -914,7 +913,7 @@ init.defaultbranch=main
 
 ### Github Repository 생성 및 연동
 
-```shell
+```ps1
 PS C:\Users\yangh> cd code
 PS C:\Users\yangh\code> git init
 Initialized empty Git repository in C:/Users/yangh/code/.git/
