@@ -1058,7 +1058,7 @@ git pull origin main --allow-unrelated-histories
 
 ```
 
-### 2. Dockerfile 수정 후 반영 미흡 (이미지 미재빌드 문제)
+### 3. Dockerfile 수정 후 반영 미흡 (이미지 미재빌드 문제)
 
 #### 1) 문제 상황
 Dockerfile 내부 명령어CMD ["python3", "-m", "http.server", "8080"])를 수정했으나, `docker run` 실행 시 변경사항이 반영되지 않고 이전 명령어(`sleep 3600`)로 컨테이너가 구동되는 현상 발생.
