@@ -1110,3 +1110,512 @@ student@93ab17eef57f:~$ curl http://localhost:8080
 
 위의 트러블 슈팅 해결 과정이 정말 짧아 보이고 단순하지만 저는 이것을 찾고 깨닫는 데 30분이 넘는 시간을 투자했습니다...
 그러니 잊지 맙시다. Dockerfile을 수정했을 때는 반드시 docker build 과정을 통해 이미지를 새로 생성한 후 컨테이너를 다시 띄워야 변경사항이 정상 적용됩니다!
+
+
+## 보너스 과제
+
+### 1. Docker Compose 기초
+
+docker-compose.yml의 기본 구조를 학습하고, 단일 서비스를 Compose로 실행한다.<br>
+
+.yml=yaml :  확장자를 가지며 사람이 읽기 쉬운 데이터 직렬화 양식을 사용합니다.<br>
+특징: 괄호나 복잡한 기호 없이 들여쓰기로 계층 구조를 표현하여 가독성이 좋습니다.
+
+docker-compose.yml은 docker 버전에 의존.
+
+**1. Docker Compose 기초 & 기본 구조**
+개념 및 배움 포인트
+기존 방식 (docker run): docker run -d -p 8080:80 --name my-web -v /path:/path nginx처럼 옵션이 길어지면 명령어를 잊어버리기 쉽고 공유하기 어렵습니다.
+
+**Compose 방식 (docker-compose.yml)**: **실행 옵션을 파일(코드)로 기록**해 둡니다. 이제 명령어 대신 "**문서화된 실행 설정 파일"만 공유**하면 docker compose up 한 줄로 누구나 동일한 환경을 띄울 수 있습니다.
+
+### 실습 : 단일 서비스 작성 및 실행
+
+**1. 프로젝트 폴더에 docker-compose.yml 파일 생성.**
+
+```YAML
+version: '5.3.1'
+
+services:
+  my-web:
+    image: nginx:latest
+    container_name: compose-web-test
+    ports:
+      - "8080:80"
+    restart: always
+```
+**2. 터미널에서 실행**
+
+```Powershell
+# 컨테이너 데몬 실행 (-d 옵션)
+$ docker compose up -d
+
+PS C:\Users\yangh\code\my_web_server> docker compose up -d
+time="2026-07-30T08:11:26+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[+] up 2/2
+ ✔ Network my_web_server_default Created                          0.1s
+ ✔ Container compose-web-test    Started                          0.9s
+```
+<img width="630" height="529" alt="Image" src="https://github.com/user-attachments/assets/52304f5d-3596-46a3-9342-b4025136778c" />
+
+위 사진처럼 docker -run 명령어가 아닌 공유된 "문서화된 실행 설정 파일"을 docker compose up 한 줄로 띄우는 데 성공했습니다!
+
+**접속 테스트**
+```Powershell
+# 접속 테스트
+$ curl http://localhost:8080
+
+PS C:\Users\yangh\code\my_web_server> curl http://localhost:8080
+
+보안 경고: 스크립트 실행 위험
+Invoke-WebRequest는 웹 페이지의 내용을 구문 분석합니다. 페이지를 구문 
+ 분석할 때 웹 페이지 내 스크립트 코드가 실행될 수 있습니다.           
+      권장 조치:                                                      
+      -UseBasicParsing 스위치를 사용하여 스크립트 코드 실행을         
+방지합니다.
+
+      계속하시겠어요?
+    
+[Y] 예(Y)  [A] 모두 예(A)  [N] 아니요(N)  [L] 모두 아니요(L)  
+[S] 일시 중단(S)[?] 도움말 (기본값은 "N"): Y
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html>
+                    <html>
+                    <head>
+                    <title>Welcome to nginx!</title>
+                    <style>
+                    html { color-scheme: light dark; }
+                    body { width: 35em; margin: 0 auto;
+                    font-family: Tahoma, Verdana, Arial, sans-serif; 
+                    }
+                    </style...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Accept-Ranges: bytes
+                    Content-Length: 896
+                    Content-Type: text/html
+                    Date: Wed, 29 Jul 2026 23:12:50 GMT
+                    ETag: "6a57af42-380"
+                    Last-Modified: Wed, 15 Jul 2026 ...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Accept-Ranges, bytes]
+                    , [Content-Length, 896], [Content-Type, text/html
+                    ]...}
+Images            : {}
+InputFields       : {}
+Links             : {@{innerHTML=nginx.org; innerText=nginx.org; oute
+                    rHTML=<A href="https://nginx.org/">nginx.org</A>;
+                     outerText=nginx.org; tagName=A; href=https://ngi
+                    nx.org/}, @{innerHTML=community.nginx.org; innerT
+                    ext=community.nginx.org; outerHTML=<A href="https
+                    ://community.nginx.org/">community.nginx.org</A>;
+                     outerText=community.nginx.org; tagName=A; href=h
+                    ttps://community.nginx.org/}, @{innerHTML=f5.com/
+                    nginx; innerText=f5.com/nginx; outerHTML=<A href=
+                    "https://f5.com/nginx">f5.com/nginx</A>; outerTex
+                    t=f5.com/nginx; tagName=A; href=https://f5.com/ng
+                    inx}}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 896
+```
+
+
+### 2. Docker Compose 멀티 컨테이너 & 네트워크
+
+개념 및 배움 포인트
+서비스 디스커버리 (Service Discovery): Compose는 실행될 때 기본적으로 전용 가상 네트워크를 자동으로 생성합니다.
+
+이 네트워크 안에서는 IP 주소를 몰라도 service 이름(도메인)으로 서로 통신할 수 있습니다. (예: web 컨테이너가 db:5432로 데이터베이스 접속 가능)
+
+#### 실습: NGINX(웹) + Redis(보조 서비스) 연동
+
+**docker-compose.yml을 아래와 같이 멀티 컨테이너 구성으로 수정**
+
+
+```yml
+version: '5.3.1'
+
+services:
+  # 1. 메인 웹 서버 (NGINX)
+  web:
+    image: nginx:latest
+    container_name: multi-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - cache-redis
+      - db-postgres
+
+  # 2. 보조 서비스 1: 캐시 서버 (Redis)
+  cache-redis:
+    image: redis:alpine
+    container_name: multi-redis
+    ports:
+      - "6379:6379"
+
+  # 3. 보조 서비스 2: 데이터베이스 (PostgreSQL)
+  db-postgres:
+    image: postgres:15-alpine
+    container_name: multi-postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+```
+
+**네트워크 통신 확인 (서비스 디스커버리 검증):**
+
+**1. 멀티 컨테이너 실행**
+
+**멀티 컨테이너 일괄 실행 (-d: 백그라운드)**
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose up -d
+time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[+] up 17/17
+ ✔ Image postgres:15-alpine Pulled                               20.3s
+ ✔ Container multi-redis    Started                               1.0s
+ ✔ Container multi-postgres Started                               0.9s
+ ✔ Container multi-web      Started                               1.0s
+```
+**2. 실행 중인 컨테이너 상태 확인**
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose ps
+
+time="2026-07-30T09:07:32+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+NAME             IMAGE                COMMAND                   SERVICE       CREATED              STATUS              PORTS
+multi-postgres   postgres:15-alpine   "docker-entrypoint.s…"   db-postgres   About a minute ago   Up About a minute   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+multi-redis      redis:alpine         "docker-entrypoint.s…"   cache-redis   About a minute ago   Up About a minute   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+multi-web        nginx:latest         "/docker-entrypoint.…"   web           About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+
+```
+<img width="633" height="535" alt="Image" src="https://github.com/user-attachments/assets/4be03024-dfca-4c7e-ad50-ced2e44af1f3" />
+
+**3. 컨테이너 간 네트워크 통신 (서비스 디스커버리) 검증**
+Docker Compose는 동일한 docker-compose.yml에 정의된 서비스 간에 전용 가상 네트워크를 자동으로 생성합니다. <br>
+따라서 IP 주소가 아닌 서비스 이름(cache-redis, db-postgres)으로 직접 통신할 수 있습니다.
+
+**web 컨테이너 내부 진입**
+```Powershell
+
+PS C:\Users\yangh\code\my_web_server> docker exec -it multi-web bash
+root@e178700e4dbb:/# 
+```
+
+```bash
+root@e178700e4dbb:/# ping redis-db
+bash: ping: command not found
+root@e178700e4dbb:/# nc -zv cache-redis 6379
+bash: nc: command not found
+```
+통신 테스트를 하려고 하였지만 ping과 nc 모두 설치가 되어 있지 않아 설치를 해주었습니다.
+
+```bash
+apt-get update && apt-get install -y netcat-openbsd iputils-ping
+```
+
+**보조 서비스 1 (Redis, 6379 포트) 연결 확인**
+
+```bash
+nc -zv cache-redis 6379
+```
+
+
+```bash
+root@47f4252ad46c:/# ping redis-db
+
+PING redis-db (172.18.0.3) 56(84) bytes of data.
+64 bytes from redis-app.my_web_server_default (172.18.0.3): icmp_seq=1 ttl=64 time=0.670 ms
+64 bytes from redis-app.my_web_server_default (172.18.0.3): icmp_seq=2 ttl=64 time=0.617 ms
+64 bytes from redis-app.my_web_server_default (172.18.0.3): icmp_seq=3 ttl=64 time=0.173 ms
+```
+<img width="384" height="105" alt="Image" src="https://github.com/user-attachments/assets/6ac180fe-da96-4c02-aa53-f25427bac2b6" />
+
+**보조 서비스 2 (PostgreSQL, 5432 포트) 연결 확인**
+```bash
+root@e178700e4dbb:/# nc -zv db-postgres 5432
+Connection to db-postgres (172.18.0.2) 5432 port [tcp/*] succeeded!
+```
+
+<img width="387" height="50" alt="Image" src="https://github.com/user-attachments/assets/3c9b6e44-ca19-4cb9-8eaf-5e0a2d1d8b74" />
+
+Docker Compose가 **자체 가상 네트워크를 구성**하여 **IP 주소 지정 없이 서비스 이름만으로 컨테이너 간 통신 및 서비스 디스커버리(각 서비스의 IP 주소와 포트 번호 등 위치 정보를 동적으로 찾고 관리)가 정상 작동**함을 확인했습니다!<br>
+
+### 3. Compose 운영 명령어 습득
+
+**compose up** 명령어를 통해 실행
+
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose up -d
+time="2026-07-30T09:05:30+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[+] up 17/17
+ ✔ Image postgres:15-alpine Pulled                               20.3s
+ ✔ Container multi-redis    Started                               1.0s
+ ✔ Container multi-postgres Started                               0.9s
+ ✔ Container multi-web      Started                               1.0s
+```
+**docker compose ps** compose로 관리되는 컨테이너 상태 확인
+
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose ps
+
+time="2026-07-30T09:07:32+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+NAME             IMAGE                COMMAND                   SERVICE       CREATED              STATUS              PORTS
+multi-postgres   postgres:15-alpine   "docker-entrypoint.s…"   db-postgres   About a minute ago   Up About a minute   0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
+multi-redis      redis:alpine         "docker-entrypoint.s…"   cache-redis   About a minute ago   Up About a minute   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp
+multi-web        nginx:latest         "/docker-entrypoint.…"   web           About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+ ```
+
+**docker compose logs -f web** web서비스의 실시간 로그 출력
+
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose logs -f web      
+time="2026-07-30T09:24:18+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potentPial confusion"
+multi-web  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+multi-web  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+multi-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+multi-web  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+multi-web  | 10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+multi-web  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+multi-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+multi-web  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+multi-web  | /docker-entrypoint.sh: Configuration complete; ready for start up
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: using the "epoll" event method
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: nginx/1.31.3
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: built by gcc 14.2.0 (Debian 14.2.0-19) 
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: OS: Linux 6.18.33.2-microsoft-standard-WSL2
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker processes
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 29
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 30
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 31
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 32
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 33
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 34
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 35
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 36
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 37
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 38
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 39
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 40
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 41
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 42
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 43
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 44
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 45
+multi-web  | 2026/07/30 00:05:52 [notice] 1#1: start worker process 46
+multi-web  | 2026/07/30 00:12:27 [notice] 1#1: signal 17 (SIGCHLD) received from 88
+multi-web  | 2026/07/30 00:12:27 [notice] 1#1: unknown process 88 exited with code 0
+```
+
+**docker compose down** 명령어로 컨테이너 및 전용 네트워크까지 일괄 삭제
+```Powershell
+PS C:\Users\yangh\code\my_web_server> docker compose down
+time="2026-07-30T09:26:16+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[+] down 4/4
+ ✔ Container multi-web           Removed                          0.6s
+ ✔ Container multi-redis         Removed                          0.5s
+ ✔ Container multi-postgres      Removed                          0.4s
+ ✔ Network my_web_server_default Removed                          0.3s
+```
+
+<img width="634" height="540" alt="Image" src="https://github.com/user-attachments/assets/4943e8c4-e557-48c8-ba50-483f082badb7" />
+
+**필수 운영 루틴**
+```Powershell
+# 1. 상태 확인
+$ docker compose ps
+
+# 2. redis-db 서비스의 실시간 로그만 추적
+$ docker compose logs -f redis-db
+
+# 3. 환경 깔끔하게 종료 및 제거
+$ docker compose down
+```
+-docker compose up 을 통해 공유된 "문서화된 실행 설정 파일"을 컨테이너로 띄웠으면 잘 열렸는지 항상 확인하기 위해 `docker compose ps` 명령어를 활용해 상태를 확인 하는 습관을 기를 수 있었습니다.<br>
+
+- 추가로 컨테이너를 모두 사용했을 시 `docker compose down` 명령어를 통해 환경을 깔끔하게 종료 및 제거하는 습관과 혹시 볼륨을 사용했다면 `docker dompose down -v` 명령어를 통해 데이터 볼륨까지 완전 삭제하는 습관을 가지는게 좋을 것 같습니다.
+
+- `docker compose logs -f` 명령어는 실시간으로 로그를 보여주는 건데 보안 침입을 확인할 때 유용할 것 같습니다.
+
+### 4. 환경 변수 활용 (설정과 코드의 분리)
+
+12-Factor App 원칙: 소스 코드나 Dockerfile에 포트 번호, DB 암호 등을 하드코딩하지 않고 외부 환경 변수(.env)로 주입합니다.<br>
+
+**코드 수정 없이 설정값(개발/테스트/운영 포트 등)만 바꿔서 재재배포**할 수 있습니다.
+
+
+**1. docker-compose.yml 과 같은 위치에 .env파일 생성해주었습니다.**
+
+```env
+HOST_PORT=9000
+CONTAINER_PORT=80
+DB_USER=my_secure_user
+DB_PASSWORD=super_secret_pass!
+```
+
+**2. docker-compose.yml 에서 환경 변수를 사용할 부분에 ${변수명} 형태로 작성해주었습니다. **
+
+```yml
+version: '5.3.1'
+
+services:
+  web:
+    image: nginx:latest
+    container_name: env-web-test
+    ports:
+      # .env 파일의 HOST_PORT(9000)와 CONTAINER_PORT(80)를 불러옴
+      - "${HOST_PORT}:${CONTAINER_PORT}"
+
+  db:
+    image: postgres:15-alpine
+    container_name: env-db-test
+    environment:
+      # .env 파일의 비밀번호와 유저명을 불러옴
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+```
+
+**3. 실행 및 적용 확인**
+
+실행 (Docker Compose가 같은 폴더의 .env를 자동으로 읽어옵니다)
+```Powershell
+docker compose up -d
+
+PS C:\Users\yangh\code\my_web_server> docker compose up -d
+time="2026-07-30T09:53:07+09:00" level=warning msg="The \"DB_USER\" variable is not set. Defaulting to a blank string."
+time="2026-07-30T09:53:07+09:00" level=warning msg="The \"DB_PASSWORD\" variable is not set. Defaulting to a blank string."
+time="2026-07-30T09:53:07+09:00" level=warning msg="C:\\Users\\yangh\\code\\my_web_server\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+[+] up 3/3
+ ✔ Network my_web_server_default Created                          0.0s
+ ✔ Container env-web-test        Started                          0.4s
+ ✔ Container env-db-test         Started                          0.4s
+```
+
+#### 2. 9000번 포트로 웹 서버가 잘 연결되는지 테스트
+```Powershell
+PS C:\Users\yangh\code\my_web_server> curl http://localhost:9000
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html>
+                    <html>
+                    <head>
+                    <title>Welcome to nginx!</title>
+                    <style>
+                    html { color-scheme: light dark; }
+                    body { width: 35em; margin: 0 auto;
+                    font-family: Tahoma, Verdana, Arial, sans-serif; 
+                    }
+                    </style...
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Accept-Ranges: bytes
+                    Content-Length: 896
+                    Content-Type: text/html
+                    Date: Thu, 30 Jul 2026 01:06:50 GMT
+                    ETag: "6a57af42-380"
+                    Last-Modified: Wed, 15 Jul 2026 ...
+Forms             : {}
+Headers           : {[Connection, keep-alive], [Accept-Ranges, bytes]
+                    , [Content-Length, 896], [Content-Type, text/html
+                    ]...}
+Images            : {}
+InputFields       : {}
+Links             : {@{innerHTML=nginx.org; innerText=nginx.org; oute
+                    rHTML=<A href="https://nginx.org/">nginx.org</A>;
+                     outerText=nginx.org; tagName=A; href=https://ngi
+                    nx.org/}, @{innerHTML=community.nginx.org; innerT
+                    ext=community.nginx.org; outerHTML=<A href="https
+                    ://community.nginx.org/">community.nginx.org</A>;
+                     outerText=community.nginx.org; tagName=A; href=h
+                    ttps://community.nginx.org/}, @{innerHTML=f5.com/
+                    nginx; innerText=f5.com/nginx; outerHTML=<A href=
+                    "https://f5.com/nginx">f5.com/nginx</A>; outerTex
+                    t=f5.com/nginx; tagName=A; href=https://f5.com/ng
+                    inx}}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 896
+
+
+```
+##### 3. DB 컨테이너에 설정된 환경 변수 확인
+
+**grep 명령어 사용 오류**
+```Powershell
+docker exec -it env-db-test env | grep POSTGRES
+
+grep : 'grep' 용어가 cmdlet, 함수, 스크립트 파일 또는 실행할 수 있는 
+프로그램 이름으로 인식되지 않습니다. 이름이 정확한지 확인하고 경로가 
+포함된 경우 경로가 올바른지 검증한 다음 다시 시도하십시오.
+위치 줄:1 문자:35
++ docker exec -it env-db-test env | grep POSTGRES
++                                   ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], Comm 
+   andNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+컨테이너 내부에 진입 후 바로 POSTGRES 즉 yml 파일의 USER와 PASSWORD를 불러오려고 했습니다.<br>
+하지만 찾아보니 Powershell에서는 grep를 사용 할 수 없다고 떠서 검색을 통해 grep의 역할을 해주는 **Select-String**을 찾아 대체했습니다!
+
+```Powershel
+PS C:\Users\yangh\code\my_web_server> docker exec -it env-db-test env | Select-String "POSTGRES"
+
+POSTGRES_USER=my_secure_user
+POSTGRES_PASSWORD=super_secret_pass!
+PGDATA=/var/lib/postgresql/data
+```
+
+### 5. GitHub SSH 키 설정
+
+HTTPS 방식: git push를 할 때마다 토큰을 입력해야 하거나 관리가 다소 번거롭습니다.
+
+SSH 방식: 내 컴퓨터에 비밀키(Private Key)를 보관하고, GitHub에 공개키(Public Key)를 올려둡니다. 암호화 기술로 본인임을 자동 증명하므로 비밀번호 입력 없이 안전하고 편리하게 Git 작업을 할 수 있습니다.
+빠르게 작업 수행 가능!
+
+
+**1. 내 컴퓨터에서 SSH 키쌍 생성**
+
+```Powershell
+# 이메일 주소 입력 후 엔터 3번 (기본 경로 및 비밀번호 없음)
+$ ssh-keygen -t ed25519 -C "이메일주소입력"
+```
+**2. 생성된 공개키(Public Key) 복사**
+```Powershell
+cat ~/.ssh/id_ed25519.pub
+
+```
+
+**3.Github에 등록 후 접속 및 Remote URL 변경 테스트**
+
+**SSH 접속 테스트**
+```Powershell
+ssh -T git@github.com
+
+Hi surilog! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+**기존 HTTPS 원격 주소를 SSH 주소로 변경**
+```Powershell
+git remote set-url origin git@github.com:surilog/codessey.git
+```
+
+**주소 변경 확인**
+```Powershell
+PS C:\Users\yangh\code\my_web_server> git remote -v
+origin  git@github.com:surilog/codessey.git (fetch)
+origin  git@github.com:surilog/codessey.git (push)
+```
+
+**테스트 푸시**
+```Powershell
+git push origin main
+```
+<img width="394" height="96" alt="Image" src="https://github.com/user-attachments/assets/ae54cda1-7ae1-44a6-9383-7c4c0de336ff" />
+
+<img width="339" height="27" alt="Image" src="https://github.com/user-attachments/assets/fb8abfca-21e6-4390-b93b-8ee845c39a1e" />
